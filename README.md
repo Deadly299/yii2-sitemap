@@ -34,7 +34,7 @@ php composer update
                    //статичские ссылки
                    'otherLinks' => [
                        [
-                           'link' => 'http://site/controller/action',
+                           'link' => '/controller/action',
                            'updates' => 'never',
                        ],
                        //...
@@ -57,6 +57,21 @@ php composer update
         //...
     ]
 ```
+Компоненты
+
+```php
+    'component' => [
+        'siteMapBuilder' => [
+            'class' => 'deadly299\sitemap\SiteMapBuilder',
+        ],
+        'cacheFrontend' => [
+            'class' => 'yii\caching\FileCache',
+            'cachePath' => Yii::getAlias('@frontend') . '/runtime/cache'
+        ],
+    ],
+    /...
+```
+
 Настраиваем Url-manager(логично в frontend/web)
 ```php
 'urlManager' => [

@@ -2,60 +2,25 @@
 
 namespace deadly299\sitemap\controllers;
 
-use dvizh\filter\models\Filter;
-use dvizh\shop\models\Product;
-use yii\web\Controller;
-use yii\db\Query;
 use Yii;
+use yii\web\Response;
+use yii\web\Controller;
 
 class SitemapController extends Controller
 {
-    public $urls = [];
-
     public function actionIndex()
     {
-        $module = $this->getModule();
-        $siteMapModels = $module->sitemapModels;
-        $xmlSiteMap = Yii::$app->cache->get('siteMap');
+        $response = Yii::$app->response;
+        $response->format = Response::FORMAT_RAW;
+        $response->getHeaders()->set('Content-Type', 'application/xml; charset=utf-8');
+        $siteMapBuilder = Yii::$app->siteMapBuilder;
 
-        if ($xmlSiteMap) {
-
-            foreach ($siteMapModels as $key => $siteMapModel) {
-
-                $model = $siteMapModel['class'];
-                $models = $model::find();
-
-                if (isset($siteMapModel['conditions']))
-                    $models->andWhere($siteMapModel['conditions']);
-
-
-                $models = $models->asArray()->all();
-
-                foreach ($models as $item) {
-                    $this->urls[] = [
-                        Yii::$app->urlManager->createUrl(['/'. $siteMapModel['link'] .'/' . $item['slug']]),
-                        $siteMapModel['updates'],
-                    ];
-                }
-            }
-
-            if($module->otherLinks) {
-                foreach ($module->otherLinks as $link) {
-                    $this->urls[] = [
-                        Yii::$app->urlManager->createUrl(['/'. $link['link'] .'/' . $link['slug']]),
-                        $link['updates'],
-                    ];
-                }
-            }
-
-            Yii::$app->cache->set('siteMap', $this->urls, 3600*12);
+        if ($siteMapBuilder->hasXmlInCache()) {
+            $urls = $siteMapBuilder->getXmlOutOfCache();
+        } else {
+            $urls = $siteMapBuilder->buildSiteMap();
         }
 
-        echo $xmlSiteMap = $this->renderPartial('index', ['urls' => $xmlSiteMap]);
-    }
-
-    public function getModule()
-    {
-        return Yii::$app->getModule('sitemap');
+        return $this->renderPartial('index', ['urls' => $urls]);
     }
 }

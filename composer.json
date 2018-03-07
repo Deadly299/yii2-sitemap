@@ -11,11 +11,11 @@
         }
     ],
     "require": {
-        "yiisoft/yii2": "~2.0.0"
+        "yiisoft/yii2": "*"
     },
     "autoload": {
         "psr-4": {
-            "deadly299\\attachdocument\\": ""
+            "deadly299\\sitemap\\": ""
         }
     }
 }
