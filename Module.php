@@ -9,6 +9,7 @@ class Module extends \yii\base\Module
 {
     public $sitemapModels = null;
     public $otherLinks = null;
+    public $domain = null;
 
     /**
      * @inheritdoc
@@ -17,5 +18,7 @@ class Module extends \yii\base\Module
     public function init()
     {
         parent::init();
+
+        $this->domain = \Yii::$app->request->baseUrl;
     }
 }

@@ -3,7 +3,7 @@
         <url>
             <loc><?= htmlspecialchars(yii\helpers\Url::to($url['url'], true)) ?></loc>
             <lastmod><?= $url['lastMod'] ?></lastmod>
-            <priority><?= $url['frequencyUpdate'] ?></priority>
+            <changefreq><?= $url['frequencyUpdate'] ?></changefreq>
         </url>
     <?php } ?>
 </urlset>

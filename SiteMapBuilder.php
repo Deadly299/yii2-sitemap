@@ -76,6 +76,9 @@ class siteMapBuilder extends Component
     {
         $this->urls = $this->getXmlOutOfCache();
         $modelSettings = $this->findSiteMapSetting($modelOwner);
+        if(!$modelSettings) {
+            return false;
+        }
         $urlKey = $this->findUrlKey($modelSettings, $modelOwner);
 
         if ($event == self::EVENT_DELETE) {
@@ -85,7 +88,7 @@ class siteMapBuilder extends Component
             if ($urlKey) {
                 $this->updateUrl($modelOwner, $urlKey, $modelSettings);
             } else {
-                $this->insertUrl($modelOwner, $urlKey, $modelSettings);
+                $this->insertUrl($modelOwner, $modelSettings);
             }
         }
     }
@@ -106,10 +109,7 @@ class siteMapBuilder extends Component
 
     private function findUrlKey($modelSetting, $modelOwner)
     {
-        $slugItem = $modelSetting['slugItem'];
-
-        $url = Yii::$app->urlManager->createUrl(['/' . $modelSetting['link'] . '/' . $modelOwner->$slugItem]);
-        $url = str_replace('/admin', '', $url);
+        $url = $url = $this->getUrlOutSettings($modelSetting, $modelOwner);
 
         foreach ($this->urls as $key => $xmlItem) {
 
@@ -122,21 +122,17 @@ class siteMapBuilder extends Component
         return false;
     }
 
-
     public function deleteUrl($urlKey)
     {
         $siteMapUrls = $this->getXmlOutOfCache();
         ArrayHelper::remove($siteMapUrls, $urlKey);
         $this->urls = $siteMapUrls;
         $this->setXmlInCache();
-
     }
 
     public function updateUrl($modelOwner, $urlKey, $modelSetting)
     {
-        $slugItem = $modelSetting['slugItem'];
-        $url = Yii::$app->urlManager->createUrl(['/' . $modelSetting['link'] . '/' . $modelOwner->$slugItem]);
-        $url = str_replace('/admin', '', $url);
+        $url = $this->getUrlOutSettings($modelSetting, $modelOwner);
         $this->urls[$urlKey]['url'] = $url;
         $this->urls[$urlKey]['lastMod'] = date(DATE_W3C);
 
@@ -145,13 +141,19 @@ class siteMapBuilder extends Component
 
     public function insertUrl($modelOwner, $modelSetting)
     {
-        $slugItem = $modelSetting['slugItem'];
-        $url = Yii::$app->urlManager->createUrl(['/' . $modelSetting['link'] . '/' . $modelOwner->$slugItem]);
-        $url = str_replace('/admin', '', $url);
-        $this->addUrl($url, $modelSetting['update']);
+        $url = $this->getUrlOutSettings($modelSetting, $modelOwner);
+        $this->addUrl($url, $modelSetting['updates']);
         $this->setXmlInCache();
     }
 
+    public function getUrlOutSettings($modelSetting, $modelOwner)
+    {
+        $slugItem = $modelSetting['slugItem'];
+        $url = Yii::$app->urlManager->createUrl(['/' . $modelSetting['link'] . '/' . $modelOwner->$slugItem]);
+        $url = str_replace('/admin', '', $url);
+
+        return $url;
+    }
 
     //cache methods
     public function hasXmlInCache()
@@ -166,7 +168,6 @@ class siteMapBuilder extends Component
 
     public function setXmlInCache()
     {
-//        Yii::$app->cacheFrontend->delete('manufacturer');
         Yii::$app->cacheFrontend->set('sitemap', $this->urls, 3600 * 12);
     }
 

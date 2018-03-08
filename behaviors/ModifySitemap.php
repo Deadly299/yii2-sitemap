@@ -14,7 +14,8 @@ class ModifySitemap extends Behavior
     {
         return [
             ActiveRecord::EVENT_AFTER_DELETE => 'deleteLink',
-            ActiveRecord::EVENT_BEFORE_UPDATE => 'createLink',
+            ActiveRecord::EVENT_AFTER_UPDATE=> 'createLink',
+            ActiveRecord::EVENT_AFTER_INSERT => 'createLink',
         ];
     }
 
