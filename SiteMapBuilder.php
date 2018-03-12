@@ -74,7 +74,10 @@ class siteMapBuilder extends Component
     //behavior methods
     public function updateXmlUlr($event, $modelOwner)
     {
-        $this->urls = $this->getXmlOutOfCache();
+        if(!$xml = $this->getXmlOutOfCache()) {
+            return false;
+        }
+        $this->urls = $xml;
         $modelSettings = $this->findSiteMapSetting($modelOwner);
         if(!$modelSettings) {
             return false;
